@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 from ledger import Entry, hasher, z_len
 
 class Minter:

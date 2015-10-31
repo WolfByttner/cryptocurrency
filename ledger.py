@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import hashlib
 from math import log10, floor
 
@@ -14,7 +17,7 @@ z_len = 5
 
 class Coin:
 	def __init__(self, value):
-		self.value = value ## TODO: Store as int 
+		self.value = value
 	
 	def __repr__(self):
 		s = ""
@@ -63,7 +66,7 @@ class Transaction:
 		self.amount = amount
 	
 	def __repr__(self):
-		s = "{1} sends {2} to {3}".format(
+		s = "{0} sends {1} to {2}".format(
 			self.addr_src, self.amount, self.addr_target)
 		return s
 
