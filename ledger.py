@@ -1,5 +1,5 @@
 import hashlib
-from math import log10, ceil
+from math import log10, floor
 
 ##
 #  Utility Variables
@@ -18,14 +18,40 @@ class Coin:
 	
 	def __repr__(self):
 		s = ""
-		if self.value >= 10 ** 12:
-			s += str(int(self.value / 10 ** 12)) + '.'
+		if (self.value < 0):
+			s += '-'
+		value = abs(self.value)
+		if value >= 10 ** 12:
+			s += str(int(value / 10 ** 12)) + '.'
 		else:
 			s += '0.'
-		if self.value % 10 ** 12 != 0:
-			s += '0' * (12 - (int(ceil(log10(self.value % 10 ** 12)))))
-			s += str(self.value % (10 ** 12)).rstrip('0')
+		if value % (10 ** 12) != 0:
+			s += '0' * (12 - (int(floor(log10(
+					value % (10 ** 12))) + 1)))
+			s += str(value % (10 ** 12)).rstrip('0')
 		return s
+	
+	def __str__(self):
+		return "£" + self.__repr__()
+	
+	def __add__(self, other):
+		return Coin(self.value + other.value)
+	
+	def __sub__(self, other):
+		return Coin(self.value - other.value)
+	
+	def __mul__(self, integ):
+		if type(integ) == Coin:
+			return Coin(self.value * integ.value)
+		return Coin(self.value * integ)
+	
+	@classmethod
+	def one(self):
+		return Coin(10**12)
+	
+	@classmethod
+	def frac(self):
+		return Coin(1)
 
 
 
