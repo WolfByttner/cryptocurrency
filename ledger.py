@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import hashlib
+import re
 from math import log10, floor
 from ipaddress import IPv6Address
 from functools import reduce
@@ -29,6 +30,14 @@ def isfloat(num):
 		return True
 	except Exception:
 		return False
+
+def ishexadecimal(num):
+	try:
+		int(num, 16)
+		return True
+	except Exception
+		return False
+
 ##
 #  End Utility Functions
 ##
@@ -114,13 +123,24 @@ class Coin:
 		return Coin(1, _raw = True)
 
 
+##
+#  This is more of a demonstration
+#  https://www.youtube.com/watch?v=o9pEzgHorH0
+##
+
 class Address(AddressType):
 	def __init__(self, address):
 		super(Address, self).__init__(address)
 
+def is_address(address)
+	try:
+		Address(address)
+		return True
+	except Exception:
+		return False
+
 
 class Transaction:
-
 	def validate_addr(self, address, name):
 		if type(address) == Address:
 			return (address)
@@ -132,42 +152,92 @@ class Transaction:
 	def validate_amount(self, amount):
 		if type(amount) == Coin:
 			return amount
-		elif type(amount) == int:
-			return Coin(amoun)
+		else:
+			return Coin(amount)
 
 	def __init__(self, addr_src, addr_target, amount):
 		self.addr_src = self.validate_addr(addr_src, "Source")
 		self.addr_target = self.validate_addr(addr_target, "Target")
-		self.amount = amount
+		self.amount = self.validate_amount(amount)
 	
 	def __repr__(self):
-		s = "{0} sends {1} to {2}".format(
+		s = "A{0}A{2}C{1}".format(
+			self.addr_src, repr(self.amount), self.addr_target)
+		return s
+
+	def __str__(self):
+		s = "Address {0} sends {1} to Address {2}".format(
 			self.addr_src, self.amount, self.addr_target)
 		return s
 
 	# Takes a string and returns a transaction
-	#@classmethod
-	#def transcribe(cls, string):
-	#	return
+	@classmethod
+	def restore(self, string):
+		if string.startswith('A') and 'C' in string:
+			## repr restore
+			spl = string.split('A')
+			addr_src = Address(spl[1])
+			spl = spl[2].split('C')
+			addr_target = Address(spl[0])
+			amount = spl[1]
+			## TODO: Add str restore
+		else:
+			raise ValueError('Cannot restore string')
+		return Transaction(addr_src, addr_target, amount)
 
 
 class Entry:
-	def __init__(self, head = None, transactions = [], hashnums = []):
+	num_t = 60 ## Number of transactions
+	num_h = 6  ## Number of hashes required
+	sum_r = 6  ## Reward given for successful hashing
+	assert num_t % 10 == 0
+
+	def __init__(self, reward_addr = None, head = None,
+			transactions = [], hashnums = [],
+			z_len = z_len):
 		self.head = head ## Hexadecimal, unique in the ledger
 		self.transactions = transactions
 		self.hashnums = hashnums
-	
+		self.z_len = z_len;
+		self.reward_addr
+
+	def check_hash(self, h_val, chunk):
+		batch = 'RA' + str(self.reward_addr) + 'R' + str(self.sum_r)
+		batch += "HEAD" + self.head
+		batch += "\n".join(chunk)
+		batch += str(h_val)
+		return (hasher(batch.encode('utf-8'))
+				.hexdigest()
+				.startswith('0' * self.z_len)
+		)
+
 	def validate(self):
 		valid = True
-		if len(self.transactions) != 50:
+		if len(self.transactions) != self.num_t:
 			valid = False
-		elif len(self.hashnums) != 5:
+		elif len(self.hashnums) != self.num_t / 10:
 			valid = False
-		for i in range(len(self.hashnums)):
-			t = "\n".join(map(str, transactions[i*10:(i + 1)*10]))
-			if not hasher(t + str(self.hashnums[i]).encode('utf-32')).hexdigit().startswith('0'*z_len):
-				valid = False
-				break;
+		elif (type(self.reward_addr) == Address or 
+				is_address(self.reward_addr))
+			valid = False
+		elif type(self.head != str or len(self.head != hasher.digest_size or
+				not ishexadecimal(self.head))):
+			valid = False
+		else:
+			for i in range(len(self.hashnums)):
+				chunk = list(map(repr, self.transactions[i*10:(i + 1)*10]))
+				valid = self.check_hash(self.hashnums[i], chunk)
+				if not valid:
+					break;
 		return valid
+
+	def get_remaining(self):
+		return self.num_t - len(self.transactions)
+
+	def add_transaction(self, transaction):
+		pass
+
+	def __repr__(self):
+		pass
 
 
